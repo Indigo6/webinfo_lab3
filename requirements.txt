@@ -1,0 +1,2 @@
+pandas
+surpurise£¨conda install -c conda-forge scikit-surprise£©
