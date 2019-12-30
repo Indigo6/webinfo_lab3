@@ -5,15 +5,10 @@ from surprise import Dataset, Reader
 from surprise.model_selection import cross_validate, train_test_split
 
 
-def read_unregular_csv(csv_path):
-    data = []
-    with open(csv_path, encoding="utf-8"):
-        return data
-
-
 if __name__ == "__main__":
-    data_list = read_unregular_csv("data/try.txt")
-    df = pd.read_csv("data/try.txt", header=None)
-    print(type(df))
-    print(df)
-    print(df.shape)
+    data_path = "data/train.txt"
+    data_type = {'user_id': np.int32, 'item_id': np.int32, 'rating': np.float32}
+    names = ['user_id', 'item_id', 'rating']
+    ratings = pd.read_csv(data_path, dtype=data_type, usecols=range(3), names=names)
+    print(type(ratings))
+    print(ratings.shape)
