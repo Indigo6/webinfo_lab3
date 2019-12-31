@@ -22,10 +22,10 @@ def fmt_time(dtime):
 
 
 if __name__ == "__main__":
-    if_train = False
-    if_search = True
+    if_train = True
+    if_search = False
     data_path = "data/train.txt"
-    pkl_filename = "pickle_model.pkl"
+    pkl_filename = "model.pkl"
     # reader = Reader(line_format='user item rating timestamp', sep=',')
     # # 加载数据
     # data = Dataset.load_from_file(data_path, reader=reader)
@@ -42,6 +42,7 @@ if __name__ == "__main__":
     # trainset = data.build_full_trainset()
     # model.train(trainset)
     if if_search:
+        # 跑不动，太慢了
         # 指定参数选择范围
         param_grid = {'n_epochs': [5, 10], 'lr_all': [0.002, 0.005],
                       'reg_all': [0.4, 0.6]}
@@ -71,13 +72,33 @@ if __name__ == "__main__":
             pickle.dump(model, file)
         
     elif if_train:
-        model = SVD(n_epochs=1, verbose=True)
+        epoch = 20
+        total_epoch = 210
+        done_epoch = 0
         time_start = time.time()
-        model.fit(trainset)
-        elapsed = time.time() - time_start
-        print('Elapsed(train): %s' % (fmt_time(elapsed)))
+        for i in range(1, epoch+1):
+            model = SVD(n_epochs=i, verbose=False)
+            model.fit(trainset)
+            # predictions_train = model.test(trainset)
+            predictions_test = model.test(testset)
+            # train_nmse = accuracy.rmse(predictions_train)
+            test_nmse = accuracy.rmse(predictions_test)
+            with open("model_e"+str(i)+".pkl", 'wb') as file:
+                pickle.dump(model, file)
+            elapsed = time.time() - time_start
+            done_epoch += i
+            eta = (epoch - done_epoch) * elapsed / done_epoch if done_epoch > 0 else 0
+            # print('[%d/%d] Elapsed: %s, ETA: %s >> train_nmse:%s, test_nmse:%s' %
+            #       (i+1, epoch, fmt_time(elapsed), fmt_time(eta), train_nmse, test_nmse))
+            print('[%d/%d] Elapsed: %s, ETA: %s >> test_nmse:%s' %
+                  (i, epoch, fmt_time(elapsed), fmt_time(eta), test_nmse))
+            # print('Elapsed(train): %s' % (fmt_time(elapsed)))
+
         # Save to file in the current working directory
+        time_start = time.time()
         predictions = model.test(testset)
+        elapsed = time.time() - time_start
+        print('Elapsed(predict): %s' % (fmt_time(elapsed)))
         # 然后计算RMSE
         accuracy.rmse(predictions)
         with open(pkl_filename, 'wb') as file:
