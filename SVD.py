@@ -87,7 +87,7 @@ if __name__ == "__main__":
                 pickle.dump(model, file)
             elapsed = time.time() - time_start
             done_epoch += i
-            eta = (epoch - done_epoch) * elapsed / done_epoch if done_epoch > 0 else 0
+            eta = (total_epoch - done_epoch) * elapsed / done_epoch if done_epoch > 0 else 0
             # print('[%d/%d] Elapsed: %s, ETA: %s >> train_nmse:%s, test_nmse:%s' %
             #       (i+1, epoch, fmt_time(elapsed), fmt_time(eta), train_nmse, test_nmse))
             print('[%d/%d] Elapsed: %s, ETA: %s >> test_nmse:%s' %
