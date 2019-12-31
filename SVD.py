@@ -6,6 +6,7 @@ import pickle
 from surprise import SVDpp, SVD, accuracy
 from surprise import Dataset, Reader
 from surprise.model_selection import cross_validate, train_test_split
+from surprise.model_selection import GridSearchCV
 
 
 def fmt_time(dtime):
@@ -42,13 +43,18 @@ if __name__ == "__main__":
     # model.train(trainset)
     if if_search:
         # 指定参数选择范围
-        param_grid = {'n_epochs': [10, 20], 'lr_all': [0.002, 0.005],
+        param_grid = {'n_epochs': [5, 10], 'lr_all': [0.002, 0.005],
                       'reg_all': [0.4, 0.6]}
 
-        gs = GridSearchCV(SVD, param_grid, measures=['rmse', 'mae'], cv=3)
+        gs = GridSearchCV(SVD, param_grid, measures=['rmse', 'mae'], cv=5, n_jobs=-1, joblib_verbose=2)
 
+        time_start = time.time()
         gs.fit(data)
+        elapsed = time.time() - time_start
+        print('Elapsed(search best): %s' % (fmt_time(elapsed)))
 
+        results_df = pd.DataFrame.from_dict(gs.cv_results)
+        results_df.to_csv("grid_result.csv")
         # 打印最好的均方根误差RMSE
         print(gs.best_score['rmse'])
 
@@ -57,7 +63,10 @@ if __name__ == "__main__":
 
         # 现在可以使用产生最佳RMSE的算法
         model = gs.best_estimator['rmse']
+        time_start = time.time()
         model.fit(data.build_full_trainset())
+        elapsed = time.time() - time_start
+        print('Elapsed(best fit): %s' % (fmt_time(elapsed)))
         with open(pkl_filename, 'wb') as file:
             pickle.dump(model, file)
         
