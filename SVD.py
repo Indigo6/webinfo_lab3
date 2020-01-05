@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import time
 import pickle
+import argparse
 
 from surprise import SVDpp, SVD, accuracy
 from surprise import Dataset, Reader
@@ -22,7 +23,14 @@ def fmt_time(dtime):
 
 
 if __name__ == "__main__":
-    if_train = False
+    parser = argparse.ArgumentParser(description='Surpurise based SVD')
+    parser.add_argument('-m', help='Mode: train or predict', required=True, dest='mode', type=str)
+
+    args = parser.parse_args()
+    if(args.mode == 'train'):
+        if_train = True
+    else:
+        if_train = False
     if_search = False
     train_data_path = "data/train.txt"
     test_data_path = "data/test.txt"
@@ -102,10 +110,10 @@ if __name__ == "__main__":
     else:
         data_type = {'user_id': np.int32, 'item_id': np.int32}
         names = ['user_id', 'item_id']
-        test_data = pd.read_csv(train_data_path, dtype=data_type, usecols=range(2), names=names, nrows=100)
+        test_data = pd.read_csv(train_data_path, dtype=data_type, usecols=range(2), names=names)
         print(test_data.shape)
 
-        model = pickle.load(open("model_e10_old.pkl", 'rb'))
+        model = pickle.load(open("model_e8.pkl", 'rb'))
         time_start = time.time()
         length = test_data.shape[0]
         for index, row in test_data.iterrows():
