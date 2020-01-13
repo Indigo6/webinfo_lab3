@@ -102,17 +102,22 @@ if __name__ == "__main__":
     else:
         data_type = {'user_id': np.int32, 'item_id': np.int32}
         names = ['user_id', 'item_id']
-        test_data = pd.read_csv(train_data_path, dtype=data_type, usecols=range(2), names=names, nrows=100)
-        print(test_data.shape)
+       # test_data = pd.read_csv('data/test/test.txt', dtype=data_type, usecols=range(2), names=names)
+     #   print(test_data.shape)
 
-        model = pickle.load(open("model_e10_old.pkl", 'rb'))
+        model = pickle.load(open("model_e8.pkl", 'rb'))
         time_start = time.time()
-        length = test_data.shape[0]
-        for index, row in test_data.iterrows():
-            print(row['user_id'], row['item_id'])
-            predictions = model.predict(row['user_id'], row['item_id'])
-            print(predictions)
-            elapsed = time.time() - time_start
-            eta = (length - index - 1) * elapsed / (index + 1) if (index+1) > 0 else 0
-        print('[%d/%d] Elapsed: %s, ETA: %s ' % (index+1, length, fmt_time(elapsed), fmt_time(eta)))
+      #  length = test_data.shape[0]
+        with open('submit2.txt', mode='w') as f_out:
+            with open('data/test/test.txt', mode='r', encoding='utf8') as test_file:
+                for line in test_file:
+                # print(row['user_id'], row['item_id'])
+                    line = line.split(',')
+                    predictions = model.predict(np.int32(line[0]),np.int32(line[1]))
+                # print(predictions)
+                    f_out.write(str(int(round(predictions.est))) + '\n')
+                 # elapsed = time.time() - time_start
+                # eta = (length - index - 1) * elapsed / (index + 1) if (index + 1) > 0 else 0
+
+     #   print('[%d/%d] Elapsed: %s, ETA: %s ' % (index+1, length, fmt_time(elapsed), fmt_time(eta)))
         # 然后计算RMSE
